@@ -1,34 +1,49 @@
 <script>
-  import { createEventDispatcher } from 'svelte'
-  import AddForm from './AddForm.svelte'
+  import { createEventDispatcher } from 'svelte';
+  import AddForm from './AddForm.svelte';
 
-  export let first = true
+  export let first = true;
 
-  const dispatch = createEventDispatcher()
+  const dispatch = createEventDispatcher();
 
-  let adding = false
+  let adding = false;
 
   function add() {
-    adding = true
+    adding = true;
   }
 
   function cancel() {
-    adding = false
+    adding = false;
   }
 
   async function submit(event) {
-    dispatch('add', {title: event.detail, cards: []})
-    adding = false
+    dispatch('add', { title: event.detail, cards: [] });
+    adding = false;
   }
 </script>
 
 <section class:adding>
   {#if adding}
-    <AddForm placeholder="Enter a list title..." action="Add List" on:submit={submit} on:close={cancel}/>
+    <AddForm
+      placeholder="Enter a list title..."
+      action="Add List"
+      on:submit={submit}
+      on:close={cancel}
+    />
   {:else}
-    <button on:click={add}>
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+    <button class="primary" on:click={add}>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+        />
       </svg>
       <span>{first ? 'Add a list' : 'Add another list'}</span>
     </button>
