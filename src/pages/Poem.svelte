@@ -1,31 +1,54 @@
 <script>
   import { onMount } from 'svelte';
-  import { dndzone, SHADOW_ITEM_MARKER_PROPERTY_NAME } from 'svelte-dnd-action';
-  import { fade } from 'svelte/transition';
-  import { cubicIn } from 'svelte/easing';
-  import List from '@/components/List.svelte';
-  import AddList from '@/components/AddList.svelte';
   import InPlaceEdit from '@/components/InPlaceEdit.svelte';
   import Header from '@/components/Header.svelte';
+  import { quill } from '../utils/editor.js';
   import poemsStore from '@/supabase/poems';
   import commentsStore from '@/supabase/comments';
 
-  const flipDurationMs = 200;
-  let loading = true;
-  let poem;
-  let comments = [];
-
+  export let user;
   export let id;
+  const flipDurationMs = 200;
+  let isOwner = false;
+  let isNew = true;
+  let isEdit = false;
+  let loading = true;
+  let content = { html: '', text: '' };
+  let poem = {
+    title: '',
+    body: '',
+  };
+  let comments = [];
+  let options = {
+    modules: {
+      toolbar: [
+        [{ header: [1, 2, 3, false] }],
+        ['bold', 'italic', 'underline', 'strike'],
+        ['link', 'code-block'],
+      ],
+    },
+    placeholder: 'Type something...',
+    theme: 'snow',
+  };
 
   onMount(() => {
-    poemsStore.poems.get(id).then((result) => {
-      poem = result;
-    });
-    commentsStore.comments.byPoem(id).then((result) => {
-      console.log(result, id);
-      comments = result;
-      loading = false;
-    });
+    isNew = false;
+    poemsStore.poems
+      .get(id)
+      .then((result) => {
+        poem = result;
+      })
+      .then(() => {
+        if (user === poem.user_id) {
+          isOwner = true;
+        }
+      })
+      .then(() => {
+        commentsStore.comments.byPoem(id).then((result) => {
+          comments = result;
+          loading = false;
+        });
+      });
   });
 
   async function add() {
@@ -39,96 +62,90 @@
 
   async function getComments(id) {}
 
-  async function addList({ detail }) {
-    const list = await poemsStore.comment.create(poem, {
-      title: detail.title,
-      position: poem.comment.length,
-    });
-
-    poem.comment.push(list);
-    poem = poem;
+  async function createUpdatePoem() {
+    poem.body = content.text;
+    poem.html = content.html;
+    console.log(poem);
+    if (poem.id) {
+      await poemsStore.poems.update(poem);
+      isEdit = false;
+    } else {
+      await poemsStore.comment.create(poem, {
+        title: detail.title,
+      });
+    }
   }
 
   async function updateTitle({ detail: title }) {
     poem.title = title;
     await poemsStore.poems.update(poem);
     poem = poem;
+    console.log(content);
   }
 
-  function handleSort(e) {
-    poem.comment = e.detail.items;
-    poem = poem;
-  }
-
-  async function updateSort(e) {
-    poem.comment = e.detail.items;
-    poem = poem;
-
-    await poemsStore.poems.sort(poem);
-  }
-
-  function transformDraggedElement(element) {
-    element.classList.add('list-dragging');
-  }
+  const onEdit = () => {
+    isEdit = true;
+    content.text = poem.body;
+    content.html = poem.html;
+    // console.log(content);
+  };
 </script>
 
 <svelte:head>
+  <link href="//cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet" />
   <title>{poem?.title}</title>
 </svelte:head>
 
 <Header>
-  {#if poem}
+  {#if isOwner}
     <InPlaceEdit bind:value={poem.title} on:submit={updateTitle} />
+    {#if isEdit}
+      <button class="primary" on:click={createUpdatePoem}>Guardar</button>
+    {:else}
+      <button class="secondary" on:click={onEdit}>Editar</button>
+    {/if}
+  {:else}
+    <h1>{poem.title}</h1>
   {/if}
 </Header>
 
-<main>
+<div class="container">
   {#if loading}
     Loading...
   {:else}
-    <button on:click={add}>comentario</button>
-    <p>{poem.title}</p>
-    <!-- <div use:dndzone={{items: poem.comment, flipDurationMs, dropTargetStyle: '', transformDraggedElement, type: 'poem'}} on:consider={handleSort} on:finalize={updateSort}>
-        {#each poem.comment as list (list.id)}
-          <List {list} collapse={list[SHADOW_ITEM_MARKER_PROPERTY_NAME]}/>
-  
-          {#if list[SHADOW_ITEM_MARKER_PROPERTY_NAME]}
-            <div in:fade={{duration: 200, easing: cubicIn}} class='drag-shadow'>
-              <List {list} shadow={true}/>
-            </div>
-          {/if}
-        {/each}
-      </div>
-  
-      <AddList first={poem.comment.length == 0} on:add={addList}/> -->
+    <div style="width: 60%;">
+      {#if !isEdit}
+        <p style="white-space: break-spaces;">{poem.body}</p>
+      {:else if isOwner}
+        <div
+          style="white-space: break-spaces;"
+          class="editor"
+          use:quill={options}
+          on:text-change={(e) => (content = e.detail)}
+        >
+          {isEdit && poem.bodyº}
+        </div>
+      {/if}
+    </div>
   {/if}
-  {#each comments as comment}
-    <p>{comment.body}</p>
-  {/each}
-</main>
+  {#if !isEdit}
+    <div class="center clmn">
+      {#each comments as comment}
+        <p>{comment.body}</p>
+      {/each}
+      <button on:click={add}>comentario</button>
+    </div>
+  {:else}
+    <div>
+      Resulting HTML:
+      {@html content.html}
+    </div>
+  {/if}
+</div>
 
 <style>
-  main {
-    margin: 1rem;
-  }
-
-  main,
-  main > div {
+  .container {
     display: flex;
-    align-items: flex-start;
-    gap: 0.5rem;
-  }
-
-  :global(.list-dragging) {
-    outline: none;
-  }
-
-  .drag-shadow {
-    visibility: visible;
-    background: #ccc;
-    border-radius: 3px;
-    opacity: 0.3;
-    margin: 0;
-    color: transparent;
+    height: 100%;
   }
 </style>

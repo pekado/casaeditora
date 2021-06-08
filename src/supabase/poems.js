@@ -22,7 +22,7 @@ export default {
         async get(id) {
             const { body } = await supabase
                 .from('poems')
-                .select('id, title, body')
+                .select('*')
                 .eq('id', id)
                 .single()
 
@@ -40,7 +40,7 @@ export default {
         async update(poem) {
             const { body } = await supabase
                 .from('poems')
-                .update({ title: poem.title })
+                .update(poem)
                 .match({ id: poem.id })
 
             return body[0]

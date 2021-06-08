@@ -16,27 +16,28 @@
 </script>
 
 <Header>Casa Editora</Header>
-{#if $user}
-  <Route path="/">
-    <Home />
-  </Route>
-  <Route path="/article/:id" let:meta>
-    <Article id={meta.params.id} />
-  </Route>
-  <Route path="/ignea">
-    <Ignea />
-  </Route>
-  <Route path="/ignea/poema/:id" let:meta>
-    <Poem id={meta.params.id} />
-  </Route>
-  <!-- <Route path="/boards/:id" let:meta>
+<main>
+  {#if $user}
+    <Route path="/">
+      <Home />
+    </Route>
+    <Route path="/article/:id" let:meta>
+      <Article id={meta.params.id} />
+    </Route>
+    <Route path="/ignea">
+      <Ignea />
+    </Route>
+    <Route path="/ignea/poema/:id" let:meta>
+      <Poem id={meta.params.id} user={$user.id} />
+    </Route>
+    <!-- <Route path="/boards/:id" let:meta>
     <Board id={meta.params.id} />
   </Route> -->
-{:else}
-  <Route path="/">
-    <Login />
-  </Route>
-{/if}
-
-<Route fallback>Aw shucks. That couldn't be found.</Route>
-<Footer />
+  {:else}
+    <Route path="/">
+      <Login />
+    </Route>
+  {/if}
+  <Route fallback>Aw shucks. That couldn't be found.</Route>
+  <Footer />
+</main>
