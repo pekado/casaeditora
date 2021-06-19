@@ -7,6 +7,7 @@
   import Ignea from '@/pages/Ignea.svelte';
   import Home from '@/pages/Home.svelte';
   import Poem from '@/pages/Poem.svelte';
+  import NewPoem from '@/pages/NewPoem.svelte';
   import Article from '@/pages/Article.svelte';
   import Header from './components/Header.svelte';
   import Footer from './components/Footer.svelte';
@@ -29,6 +30,9 @@
     </Route>
     <Route path="/ignea/poema/:id" let:meta>
       <Poem id={meta.params.id} user={$user.id} />
+    </Route>
+    <Route path="/ignea/poema">
+      <NewPoem user={$user.id} />
     </Route>
     <!-- <Route path="/boards/:id" let:meta>
     <Board id={meta.params.id} />

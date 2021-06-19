@@ -3,17 +3,22 @@
   import InPlaceEdit from '@/components/InPlaceEdit.svelte';
   import Header from '@/components/Header.svelte';
   import { quill } from '../utils/editor.js';
+  import edjsHTML from 'editorjs-html';
   import poemsStore from '@/supabase/poems';
   import commentsStore from '@/supabase/comments';
+  import Editor from '@/components/Editor.svelte';
 
   export let user;
   export let id;
+
+  const edjsParser = edjsHTML();
+  let HTML = [];
   const flipDurationMs = 200;
   let isOwner = false;
   let isNew = true;
   let isEdit = false;
   let loading = true;
-  let content = { html: '', text: '' };
+  let comment = '';
   let poem = {
     title: '',
     body: '',
@@ -37,6 +42,7 @@
       .get(id)
       .then((result) => {
         poem = result;
+        HTML = JSON.parse(poem.html);
       })
       .then(() => {
         if (user === poem.user_id) {
@@ -51,43 +57,37 @@
       });
   });
 
-  async function add() {
-    const board = await commentsStore.comments.create({
-      body: 'sdas',
+  async function addComment() {
+    const commentResponse = await commentsStore.comments.create({
+      body: comment,
       poem_id: id,
     });
+    console.log(commentResponse);
+    comments = [...comments, commentResponse[0]];
 
     // router.goto(`/poems/${board.id}`);
   }
 
-  async function getComments(id) {}
-
-  async function createUpdatePoem() {
-    poem.body = content.text;
-    poem.html = content.html;
-    console.log(poem);
-    if (poem.id) {
-      await poemsStore.poems.update(poem);
-      isEdit = false;
-    } else {
-      await poemsStore.comment.create(poem, {
-        title: detail.title,
-      });
-    }
+  async function updatePoem() {
+    await poemsStore.poems.update(poem);
+    isEdit = false;
   }
 
   async function updateTitle({ detail: title }) {
     poem.title = title;
     await poemsStore.poems.update(poem);
     poem = poem;
-    console.log(content);
   }
 
   const onEdit = () => {
     isEdit = true;
-    content.text = poem.body;
-    content.html = poem.html;
     // console.log(content);
+  };
+
+  const handleChange = (e) => {
+    HTML = edjsParser.parse(e.detail);
+    poem.data = e.detail;
+    poem.html = HTML;
   };
 </script>
 
@@ -98,12 +98,15 @@
 
 <Header>
   {#if isOwner}
-    <InPlaceEdit bind:value={poem.title} on:submit={updateTitle} />
-    {#if isEdit}
-      <button class="primary" on:click={createUpdatePoem}>Guardar</button>
-    {:else}
-      <button class="secondary" on:click={onEdit}>Editar</button>
-    {/if}
+    <div style="width: 100%" class="center sB">
+      <div />
+      <InPlaceEdit bind:value={poem.title} on:submit={updateTitle} />
+      {#if isEdit}
+        <button class="primary" on:click={updatePoem}>Guardar</button>
+      {:else}
+        <button class="secondary" on:click={onEdit}>Editar</button>
+      {/if}
+    </div>
   {:else}
     <h1>{poem.title}</h1>
   {/if}
@@ -115,16 +118,11 @@
   {:else}
     <div style="width: 60%;">
       {#if !isEdit}
-        <p style="white-space: break-spaces;">{poem.body}</p>
+        {#each HTML as node}
+          {@html node}
+        {/each}
       {:else if isOwner}
-        <div
-          style="white-space: break-spaces;"
-          class="editor"
-          use:quill={options}
-          on:text-change={(e) => (content = e.detail)}
-        >
-          {isEdit && poem.bodyº}
-        </div>
+        <Editor data={poem.data} on:onChange={handleChange} />
       {/if}
     </div>
   {/if}
@@ -133,12 +131,20 @@
       {#each comments as comment}
         <p>{comment.body}</p>
       {/each}
-      <button on:click={add}>comentario</button>
+      <div>
+        <h4>Comentario</h4>
+        <textarea bind:value={comment} name="comment" cols="30" rows="5" />
+        <button class="primary" style="float: right;" on:click={addComment}
+          >Agregar</button
+        >
+      </div>
     </div>
   {:else}
     <div>
-      Resulting HTML:
-      {@html content.html}
+      Vista previa:
+      {#each HTML as node}
+        {@html node}
+      {/each}
     </div>
   {/if}
 </div>

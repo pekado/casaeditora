@@ -13,15 +13,6 @@
     poems = await poemsStore.poems.all();
     loading = false;
   });
-
-  async function add() {
-    const board = await poemsStore.poems.create({
-      title: title,
-      body: body,
-    });
-
-    // router.goto(`/poems/${board.id}`);
-  }
 </script>
 
 <svelte:head>
@@ -39,8 +30,8 @@
     {/each}
 
     <li class="add">
-      <button on:click={add}
-        >{poems.length == 0 ? 'Add a poem' : 'Add another poem'}</button
+      <a href="/ignea/poema"
+        >{poems.length == 0 ? 'Add a poem' : 'Add another poem'}</a
       >
     </li>
   </ul>
