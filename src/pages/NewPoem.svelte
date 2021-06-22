@@ -1,5 +1,5 @@
 <script>
-  import InPlaceEdit from '@/components/InPlaceEdit.svelte';
+  import { router } from 'tinro';
   import Header from '@/components/Header.svelte';
   import Editor from '@/components/Editor.svelte';
   import edjsHTML from 'editorjs-html';
@@ -10,30 +10,20 @@
     data: '',
     html: '',
   };
-  let HTML = [];
   const edjsParser = edjsHTML();
 
-  async function updateTitle({ detail: title }) {
-    poem.title = title;
-    await poemsStore.poems.update(poem);
-    poem = poem;
-  }
-
   async function add() {
-    const board = await poemsStore.poems.create(poem);
-
-    // router.goto(`/poems/${board.id}`);
+    const result = await poemsStore.poems.create(poem);
+    router.goto(`/ignea/poema/${result[0].id}`);
   }
 
   const handleChange = (e) => {
     poem.html = edjsParser.parse(e.detail);
     poem.data = e.detail;
-    console.log(poem.data);
   };
 </script>
 
 <svelte:head>
-  <link href="//cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet" />
   <title>{poem?.title}</title>
 </svelte:head>
 

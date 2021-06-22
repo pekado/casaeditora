@@ -2,7 +2,6 @@
   import { onMount } from 'svelte';
   import InPlaceEdit from '@/components/InPlaceEdit.svelte';
   import Header from '@/components/Header.svelte';
-  import { quill } from '../utils/editor.js';
   import edjsHTML from 'editorjs-html';
   import poemsStore from '@/supabase/poems';
   import commentsStore from '@/supabase/comments';
@@ -13,7 +12,6 @@
 
   const edjsParser = edjsHTML();
   let HTML = [];
-  const flipDurationMs = 200;
   let isOwner = false;
   let isNew = true;
   let isEdit = false;
@@ -24,37 +22,18 @@
     body: '',
   };
   let comments = [];
-  let options = {
-    modules: {
-      toolbar: [
-        [{ header: [1, 2, 3, false] }],
-        ['bold', 'italic', 'underline', 'strike'],
-        ['link', 'code-block'],
-      ],
-    },
-    placeholder: 'Type something...',
-    theme: 'snow',
-  };
 
-  onMount(() => {
+  onMount(async () => {
     isNew = false;
-    poemsStore.poems
-      .get(id)
-      .then((result) => {
-        poem = result;
-        HTML = JSON.parse(poem.html);
-      })
-      .then(() => {
-        if (user === poem.user_id) {
-          isOwner = true;
-        }
-      })
-      .then(() => {
-        commentsStore.comments.byPoem(id).then((result) => {
-          comments = result;
-          loading = false;
-        });
-      });
+    const result = await poemsStore.poems.get(id);
+    poem = result;
+    HTML = JSON.parse(poem.html);
+    if (user === poem.user_id) {
+      isOwner = true;
+    }
+    const response = await commentsStore.comments.byPoem(id);
+    comments = response;
+    loading = false;
   });
 
   async function addComment() {
@@ -62,10 +41,7 @@
       body: comment,
       poem_id: id,
     });
-    console.log(commentResponse);
     comments = [...comments, commentResponse[0]];
-
-    // router.goto(`/poems/${board.id}`);
   }
 
   async function updatePoem() {
@@ -81,7 +57,6 @@
 
   const onEdit = () => {
     isEdit = true;
-    // console.log(content);
   };
 
   const handleChange = (e) => {
@@ -92,31 +67,27 @@
 </script>
 
 <svelte:head>
-  <link href="//cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet" />
   <title>{poem?.title}</title>
 </svelte:head>
 
 <Header>
   {#if isOwner}
-    <div style="width: 100%" class="center sB">
-      <div />
-      <InPlaceEdit bind:value={poem.title} on:submit={updateTitle} />
-      {#if isEdit}
-        <button class="primary" on:click={updatePoem}>Guardar</button>
-      {:else}
-        <button class="secondary" on:click={onEdit}>Editar</button>
-      {/if}
-    </div>
+    <InPlaceEdit bind:value={poem.title} on:submit={updateTitle} />
+    {#if isEdit}
+      <button class="primary" on:click={updatePoem}>Guardar</button>
+    {:else}
+      <button class="secondary" on:click={onEdit}>Editar</button>
+    {/if}
   {:else}
     <h1>{poem.title}</h1>
   {/if}
 </Header>
 
-<div class="container">
+<div class="content">
   {#if loading}
     Loading...
   {:else}
-    <div style="width: 60%;">
+    <div class="poema center clmn content">
       {#if !isEdit}
         {#each HTML as node}
           {@html node}
@@ -125,33 +96,57 @@
         <Editor data={poem.data} on:onChange={handleChange} />
       {/if}
     </div>
-  {/if}
-  {#if !isEdit}
-    <div class="center clmn">
-      {#each comments as comment}
-        <p>{comment.body}</p>
-      {/each}
-      <div>
-        <h4>Comentario</h4>
-        <textarea bind:value={comment} name="comment" cols="30" rows="5" />
-        <button class="primary" style="float: right;" on:click={addComment}
-          >Agregar</button
-        >
-      </div>
-    </div>
-  {:else}
-    <div>
-      Vista previa:
-      {#each HTML as node}
-        {@html node}
-      {/each}
+    <div class="poema center clmn content">
+      {#if !isEdit}
+        <div class="content clmn" style="width: 100%; text-align: center;">
+          {#each comments as comment}
+            <div class="comment">
+              <p>{comment.body}</p>
+            </div>
+          {/each}
+        </div>
+      {:else}
+        Vista previa:
+        {#each HTML as node}
+          {@html node}
+        {/each}
+      {/if}
+      {#if !isOwner}
+        <div style="padding-bottom: 12px ;">
+          <h4>Comentario</h4>
+          <textarea bind:value={comment} name="comment" cols="30" rows="2" />
+          <button class="primary" style="float: right;" on:click={addComment}
+            >Agregar</button
+          >
+        </div>
+      {/if}
     </div>
   {/if}
 </div>
 
 <style>
-  .container {
+  .content {
     display: flex;
-    height: 100%;
+    overflow-y: auto;
+    /* height: 100%; */
+  }
+
+  .poema {
+    font-size: 17px;
+    line-height: 30px;
+    width: 60%;
+    align-items: baseline;
+  }
+
+  .right {
+    border-left: 2px solid var(--secondary-gray);
+    width: 40%;
+    text-align: center;
+  }
+
+  .comment {
+    padding: 12px;
+    border: 1px solid var(--secondary-black);
+    width: 100%;
   }
 </style>

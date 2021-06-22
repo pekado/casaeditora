@@ -2,6 +2,7 @@
   --main-white: #fff;
   --secondary-gray: #e5e5e5;
   --main-black: #000;
+  --secondary-black: rgb(77, 75, 75);
 }
 
 @font-face {
@@ -41,11 +42,19 @@ body {
   background: var(--main--white);
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
-main {
-  flex: 1;
-  overflow-y: auto;
+header {
+  text-align: center;
+  background-color: var(--main-white);
+  color: var(--main-black);
+  border-bottom: 1px solid var(--secondary-gray);
+  font-family: 'HeadersFont';
+  font-weight: bold;
+  font-size: 1rem;
+  padding: 0.5rem 18px;
+  width: 100%;
 }
 
 ul {
@@ -111,15 +120,6 @@ input[type='number']::placeholder {
   color: rgba(117, 115, 115, 0.5);
 }
 
-.ql-container,
-.ql-toolbar.ql-snow {
-  border: none !important;
-}
-
-/* .ql-editor {
-  white-space: normal !important;
-} */
-
 button {
   outline: none;
   border: none;
@@ -127,19 +127,22 @@ button {
   font-weight: 500;
   font-size: 15px;
   padding: 10px 30px;
+  border-radius: 2px;
 }
 .primary {
   background-color: var(--main-black);
   box-shadow: inset -1px 1px 0px rgba(255, 255, 255, 0.0001);
-  border-radius: 10px;
   color: var(--main-white);
   font-weight: 500;
   font-size: 15px;
 }
 
+.primary:hover {
+  background-color: var(--secondary-black);
+}
+
 .secondary {
   border: 1px solid var(--main-black);
-  border-radius: 10px;
   color: var(--main-black);
   background-color: var(--main--white);
 }
@@ -150,6 +153,11 @@ button:active {
 
 button:focus {
   border-color: #666;
+}
+
+.content {
+  flex-grow: 1;
+  padding: 12px 18px;
 }
 
 .center {
@@ -167,10 +175,6 @@ button:focus {
 
 .clmn {
   flex-direction: column;
-}
-
-* {
-  box-sizing: border-box;
 }
 
 input:disabled {

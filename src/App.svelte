@@ -1,9 +1,9 @@
 <script>
-  import { Route } from 'tinro';
+  import { Route, router } from 'tinro';
   import db from '@/db';
-  import Board from '@/pages/Board.svelte';
   // import BoardList from '@/pages/BoardList.svelte';
   import Login from '@/pages/Login.svelte';
+  import Register from '@/pages/Register.svelte';
   import Ignea from '@/pages/Ignea.svelte';
   import Home from '@/pages/Home.svelte';
   import Poem from '@/pages/Poem.svelte';
@@ -16,15 +16,9 @@
   console.log($user);
 </script>
 
-<Header>Casa Editora</Header>
+<header>Casa Editora</header>
 <main>
   {#if $user}
-    <Route path="/">
-      <Home />
-    </Route>
-    <Route path="/article/:id" let:meta>
-      <Article id={meta.params.id} />
-    </Route>
     <Route path="/ignea">
       <Ignea />
     </Route>
@@ -35,13 +29,32 @@
       <NewPoem user={$user.id} />
     </Route>
     <!-- <Route path="/boards/:id" let:meta>
-    <Board id={meta.params.id} />
-  </Route> -->
+      <Board id={meta.params.id} />
+    </Route> -->
   {:else}
-    <Route path="/">
+    <Route path="/login">
       <Login />
     </Route>
   {/if}
+  <Route path="/register">
+    <Register />
+    <Footer />
+  </Route>
+  <Route path="/">
+    <Home />
+    <Footer />
+  </Route>
+  <Route path="/article/:id" let:meta>
+    <Article id={meta.params.id} />
+    <Footer />
+  </Route>
   <Route fallback>Aw shucks. That couldn't be found.</Route>
-  <Footer />
 </main>
+
+<style>
+  main {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+  }
+</style>

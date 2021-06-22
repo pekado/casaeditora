@@ -2,12 +2,9 @@
   import Header from '@/components/Header.svelte';
   import { onMount } from 'svelte';
   import poemsStore from '@/supabase/poems';
-  import { router } from 'tinro';
 
   let poems = [];
   let loading = true;
-  let title = 'tt';
-  let body = 'bb';
 
   onMount(async () => {
     poems = await poemsStore.poems.all();
@@ -20,57 +17,38 @@
 </svelte:head>
 
 <Header>poems</Header>
-
-<main>
-  <ul>
+<main class="content">
+  <div class="container">
     {#each poems as poem}
-      <li>
-        <a href="/ignea/poema/{poem.id}">{poem.title}</a>
-      </li>
+      <a href="/ignea/poema/{poem.id}">
+        <div class="poem">
+          {poem.title}
+        </div>
+      </a>
     {/each}
 
-    <li class="add">
+    <!-- <div class="add">
       <a href="/ignea/poema"
         >{poems.length == 0 ? 'Add a poem' : 'Add another poem'}</a
       >
-    </li>
-  </ul>
+    </div> -->
+  </div>
 </main>
 
 <style>
-  ul {
-    margin: 1rem;
-    display: flex;
-    align-items: flex-start;
-    gap: 0.5rem;
+  .poem {
+    text-align: center;
+    border: 2px solid var(--main-black);
+    margin-bottom: 24px;
+    padding: 28px 8px;
+    width: 100%;
+    max-width: 100%;
   }
-
-  li {
-    background: #fff7;
-    border-radius: 3px;
-  }
-
-  li a,
-  li button {
-    display: block;
-    height: 150px;
-    min-width: 150px;
-    padding: 1rem;
-    transition: all 0.3s ease-in-out;
-  }
-
-  li.add {
-    background: #fff5;
-  }
-
-  li a {
-    display: block;
-    color: #444;
-    text-decoration: none;
-  }
-
-  li a:hover,
-  li button:hover {
-    background: #fff8;
+  .container {
+    /* display: flex;
+    gap: 15px; */
+    column-count: 5;
+    column-width: 300px;
+    column-gap: 40px;
   }
 </style>
