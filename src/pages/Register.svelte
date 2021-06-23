@@ -5,6 +5,7 @@
   let email,
     password,
     password2,
+    name,
     error,
     sent = false;
 
@@ -59,6 +60,8 @@
 
       <form on:submit|preventDefault={submit}>
         <label>
+          <span>Nombre o pseudónimo</span>
+          <input name="name" type="text" required bind:value={name} use:focus />
           <span>Correo electrónico</span>
           <input
             name="email"

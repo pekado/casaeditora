@@ -42,7 +42,7 @@ body {
   background: var(--main--white);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  /* overflow: hidden; */
 }
 
 header {

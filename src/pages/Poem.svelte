@@ -6,6 +6,8 @@
   import poemsStore from '@/supabase/poems';
   import commentsStore from '@/supabase/comments';
   import Editor from '@/components/Editor.svelte';
+  import frequency from '../utils/word-frecuency';
+  import Chart from '../components/Chart.svelte';
 
   export let user;
   export let id;
@@ -22,6 +24,7 @@
     body: '',
   };
   let comments = [];
+  let dataChart = {};
 
   onMount(async () => {
     isNew = false;
@@ -34,7 +37,25 @@
     const response = await commentsStore.comments.byPoem(id);
     comments = response;
     loading = false;
+    onWordFrequency();
   });
+
+  const onWordFrequency = () => {
+    const htmlToString = HTML.join(' ');
+    const result = frequency(htmlToString, {});
+    dataChart = {
+      labels: Object.keys(result).splice(0, 20),
+      datasets: [
+        {
+          label: poem.title,
+          backgroundColor: 'rgba(194, 116, 161, 0.5)',
+          borderColor: 'rgb(194, 116, 161)',
+          data: Object.values(result).splice(0, 20),
+        },
+      ],
+    };
+    console.log(result);
+  };
 
   async function addComment() {
     const commentResponse = await commentsStore.comments.create({
@@ -123,6 +144,7 @@
     </div>
   {/if}
 </div>
+<Chart type="radar" data={dataChart} />
 
 <style>
   .content {
