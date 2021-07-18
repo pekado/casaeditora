@@ -1,6 +1,6 @@
 <script>
   import { fly, fade } from 'svelte/transition';
-  import auth from '@/supabase/auth';
+  import { authStore } from '@/supabase/auth';
 
   let email,
     password,
@@ -11,7 +11,7 @@
 
   async function submit() {
     if (password === password2) {
-      const result = await auth.signUp(email, password);
+      const result = await authStore.signUp(email, password);
       if (result.error) {
         error = result.error;
       } else {

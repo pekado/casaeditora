@@ -1,11 +1,11 @@
 <script>
   import { fly, fade } from 'svelte/transition';
-  import auth from '@/supabase/auth';
+  import { authStore } from '@/supabase/auth';
 
   let email, password, error;
 
   async function submit() {
-    const result = await auth.signIn(email, password);
+    const result = await authStore.signIn(email, password);
     if (result.error) {
       error = result.error;
     }

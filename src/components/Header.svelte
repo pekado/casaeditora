@@ -1,18 +1,18 @@
 <script>
-  import auth from '@/supabase/auth';
+  import { authStore } from '@/supabase/auth';
   import { router } from 'tinro';
   import gravatarUrl from 'gravatar-url';
 
-  const user = auth.user;
+  const user = $authStore;
   const onLogOut = async () => {
-    await auth.signOut();
+    await authStore.signOut();
     router.goto('/');
   };
 </script>
 
 <header>
   <slot />
-  <button on:click={() => auth.signOut()}>Salir</button>
+  <button on:click={onLogOut}>Salir</button>
 
   <!-- <img src={gravatarUrl($user.email, { size: 40 })} alt="Gravatar" /> -->
 </header>

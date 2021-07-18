@@ -6,11 +6,10 @@
   import ImageTool from '@editorjs/image';
   import Embed from '@editorjs/embed';
   import Quote from '@editorjs/quote';
-  import Code from '@editorjs/code';
   import List from '@editorjs/list';
   import Delimiter from '@editorjs/delimiter';
 
-  /*   import Checklist from "@editorjs/checklist"; */
+  /*   import Checklist from "@/editorjs/checklist"; */
   let editor;
   export let holder = 'editorjs';
   export let data = {};

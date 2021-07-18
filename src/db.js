@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClient } from '@/supabase/supabase-js'
 import { writable } from 'svelte/store'
 
 const supabase = createClient(

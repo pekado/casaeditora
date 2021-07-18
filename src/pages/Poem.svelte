@@ -6,8 +6,8 @@
   import poemsStore from '@/supabase/poems';
   import commentsStore from '@/supabase/comments';
   import Editor from '@/components/Editor.svelte';
-  import frequency from '../utils/word-frecuency';
-  import Chart from '../components/Chart.svelte';
+  import frequency from '@/utils/word-frecuency';
+  import Chart from '@/components/Chart.svelte';
 
   export let user;
   export let id;
@@ -30,6 +30,7 @@
     isNew = false;
     const result = await poemsStore.poems.get(id);
     poem = result;
+    console.log(poem);
     HTML = JSON.parse(poem.html);
     if (user === poem.user_id) {
       isOwner = true;

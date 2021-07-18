@@ -1,10 +1,10 @@
-<script>
+<!-- <script>
   import {dndzone, SHADOW_ITEM_MARKER_PROPERTY_NAME} from 'svelte-dnd-action'
   import {fade} from 'svelte/transition'
   import {cubicIn} from 'svelte/easing'
   import {flip} from 'svelte/animate'
   import InPlaceEdit from '@/components/InPlaceEdit.svelte'
-  import AddForm from './AddForm.svelte'
+  import AddForm from '@/AddForm.svelte'
   import db from '@/db'
 
   const flipDurationMs = 200
@@ -214,4 +214,4 @@
     background: transparent;
     box-shadow: none;
   }
-</style>
+</style> -->
