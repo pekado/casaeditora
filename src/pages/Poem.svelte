@@ -2,17 +2,14 @@
   import { onMount } from 'svelte';
   import InPlaceEdit from '@/components/InPlaceEdit.svelte';
   import Header from '@/components/Header.svelte';
-  import edjsHTML from 'editorjs-html';
-  import poemsStore from '@/supabase/poems';
+  import { poemsStore } from '@/supabase/poems';
   import commentsStore from '@/supabase/comments';
-  import Editor from '@/components/Editor.svelte';
   import frequency from '@/utils/word-frecuency';
   import Chart from '@/components/Chart.svelte';
 
   export let user;
   export let id;
 
-  const edjsParser = edjsHTML();
   let HTML = [];
   let isOwner = false;
   let isNew = true;
@@ -22,41 +19,34 @@
   let poem = {
     title: '',
     body: '',
+    graph_data: {},
   };
   let comments = [];
   let dataChart = {};
 
   onMount(async () => {
     isNew = false;
-    const result = await poemsStore.poems.get(id);
+    const result = await poemsStore.get(id);
     poem = result;
-    console.log(poem);
-    HTML = JSON.parse(poem.html);
+    HTML = poem.html;
     if (user === poem.user_id) {
       isOwner = true;
     }
     const response = await commentsStore.comments.byPoem(id);
     comments = response;
     loading = false;
-    onWordFrequency();
-  });
-
-  const onWordFrequency = () => {
-    const htmlToString = HTML.join(' ');
-    const result = frequency(htmlToString, {});
     dataChart = {
-      labels: Object.keys(result).splice(0, 20),
+      labels: Object.keys(poem.graph_data).splice(0, 20),
       datasets: [
         {
           label: poem.title,
           backgroundColor: 'rgba(194, 116, 161, 0.5)',
           borderColor: 'rgb(194, 116, 161)',
-          data: Object.values(result).splice(0, 20),
+          data: Object.values(poem.graph_data).splice(0, 20),
         },
       ],
     };
-    console.log(result);
-  };
+  });
 
   async function addComment() {
     const commentResponse = await commentsStore.comments.create({
@@ -67,24 +57,21 @@
   }
 
   async function updatePoem() {
-    await poemsStore.poems.update(poem);
+    console.log(poem.body);
+    const data = frequency(poem.body, {});
+    poem.graph_data = data;
+    await poemsStore.update(poem);
     isEdit = false;
   }
 
   async function updateTitle({ detail: title }) {
     poem.title = title;
-    await poemsStore.poems.update(poem);
+    await poemsStore.update(poem);
     poem = poem;
   }
 
   const onEdit = () => {
     isEdit = true;
-  };
-
-  const handleChange = (e) => {
-    HTML = edjsParser.parse(e.detail);
-    poem.data = e.detail;
-    poem.html = HTML;
   };
 </script>
 
@@ -111,11 +98,9 @@
   {:else}
     <div class="poema center clmn content">
       {#if !isEdit}
-        {#each HTML as node}
-          {@html node}
-        {/each}
+        {poem.body}
       {:else if isOwner}
-        <Editor data={poem.data} on:onChange={handleChange} />
+        <textarea name="" bind:value={poem.body} id="" cols="30" rows="10" />
       {/if}
     </div>
     <div class="poema center clmn content">
@@ -129,9 +114,7 @@
         </div>
       {:else}
         Vista previa:
-        {#each HTML as node}
-          {@html node}
-        {/each}
+        {poem.body}
       {/if}
       {#if !isOwner}
         <div style="padding-bottom: 12px ;">
@@ -159,6 +142,7 @@
     line-height: 30px;
     width: 60%;
     align-items: baseline;
+    white-space: pre;
   }
 
   .right {

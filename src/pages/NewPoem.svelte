@@ -1,34 +1,21 @@
 <script>
   import { router } from 'tinro';
   import Header from '@/components/Header.svelte';
-  import Editor from '@/components/Editor.svelte';
-  import edjsHTML from 'editorjs-html';
   import frequency from '@/utils/word-frecuency';
-  import poemsStore from '@/supabase/poems';
+  import { poemsStore } from '@/supabase/poems';
 
   let poem = {
     title: '',
-    data: '',
-    html: '',
-    graph_data: '',
+    body: '',
+    graph_data: {},
   };
-  const edjsParser = edjsHTML();
 
   async function add() {
-    const htmlToString = poem.html.join(' ');
-    console.log(htmlToString);
-    const data = frequency(htmlToString, {});
+    const data = frequency(poem.body, {});
     poem.graph_data = data;
-    console.log(poem);
-    const result = await poemsStore.poems.create(poem);
+    const result = await poemsStore.create(poem);
     router.goto(`/ignea/poema/${result[0].id}`);
-    console.log(result);
   }
-
-  const handleChange = (e) => {
-    poem.html = edjsParser.parse(e.detail);
-    poem.data = e.detail;
-  };
 </script>
 
 <svelte:head>
@@ -44,13 +31,11 @@
 </Header>
 <div class="container">
   <div style="width: 60%;">
-    <Editor on:onChange={handleChange} />
+    <textarea name="" bind:value={poem.body} id="" cols="30" rows="10" />
   </div>
 
-  <div class="center clmn">
-    {#each poem.html as node}
-      {@html node}
-    {/each}
+  <div class="center clmn" style="white-space: pre;">
+    {poem.body}
   </div>
 </div>
 

@@ -1,56 +1,56 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
   import.meta.env.SNOWPACK_PUBLIC_SUPABASE_URL,
-  import.meta.env.SNOWPACK_PUBLIC_SUPABASE_KEY,
-)
+  import.meta.env.SNOWPACK_PUBLIC_SUPABASE_KEY
+);
 
-export default {
+const all = async () => {
+  const { body } = await supabase.from('poems').select('*');
 
-  poems: {
-    async all() {
-      const { body } = await supabase
-        .from('poems')
-        .select('*')
+  return body;
+};
 
-      return body
-    },
+const get = async (id) => {
+  const { body } = await supabase
+    .from('poems')
+    .select('*')
+    .eq('id', id)
+    .single();
 
-    async get(id) {
-      const { body } = await supabase
-        .from('poems')
-        .select('*')
-        .eq('id', id)
-        .single()
+  return body;
+};
 
-      return body
-    },
+const create = async (poem) => {
+  const { body } = await supabase.from('poems').insert(poem);
 
-    async create(poem) {
-      const { body } = await supabase
-        .from('poems')
-        .insert(poem)
+  return body;
+};
 
-      return body
-    },
+const update = async (poem) => {
+  const { body } = await supabase
+    .from('poems')
+    .update(poem)
+    .match({ id: poem.id });
 
-    async update(poem) {
-      const { body } = await supabase
-        .from('poems')
-        .update(poem)
-        .match({ id: poem.id })
+  return body[0];
+};
 
-      return body[0]
-    },
+const getByUserId = async (id) => {
+  const { data, error } = await supabase
+    .from('poems')
+    .select('*')
+    .match({'user_id': id});
 
-    async sort(poem) {
-      const { body } = await supabase
-        .rpc('sort_poem', {
-          poem_id: poem.id,
-          list_ids: poem.lists.map(list => list.id)
-        })
+  return { data, error };
+};
 
-      return body
-    }
-  }
-}
+const poemsStore = {
+  get: get,
+  update: update,
+  all: all,
+  create: create,
+  getByUserId: getByUserId,
+};
+
+export { poemsStore };
