@@ -39,7 +39,7 @@ const update = async (poem) => {
 const getByUserId = async (id) => {
   const { data, error } = await supabase
     .from('poems')
-    .select('*')
+    .select('title, graph_labels')
     .match({'user_id': id});
 
   return { data, error };

@@ -5,6 +5,7 @@
   import { poemsStore } from '@/supabase/poems';
   import commentsStore from '@/supabase/comments';
   import frequency from '@/utils/word-frecuency';
+  import random_rgba from '@/utils/random_rgba';
   import Chart from '@/components/Chart.svelte';
 
   export let user;
@@ -19,7 +20,8 @@
   let poem = {
     title: '',
     body: '',
-    graph_data: {},
+    graph_labels: [],
+    graph_values: [],
   };
   let comments = [];
   let dataChart = {};
@@ -36,13 +38,13 @@
     comments = response;
     loading = false;
     dataChart = {
-      labels: Object.keys(poem.graph_data).splice(0, 20),
+      labels: poem.graph_labels,
       datasets: [
         {
           label: poem.title,
-          backgroundColor: 'rgba(194, 116, 161, 0.5)',
-          borderColor: 'rgb(194, 116, 161)',
-          data: Object.values(poem.graph_data).splice(0, 20),
+          backgroundColor: random_rgba(),
+          borderColor: random_rgba(),
+          data: poem.graph_values,
         },
       ],
     };
@@ -57,10 +59,22 @@
   }
 
   async function updatePoem() {
-    console.log(poem.body);
     const data = frequency(poem.body, {});
-    poem.graph_data = data;
-    await poemsStore.update(poem);
+    poem.graph_labels = Object.keys(data);
+    poem.graph_values = Object.values(data);
+    const res = await poemsStore.update(poem);
+    poem = res;
+    dataChart = {
+      labels: poem.graph_labels,
+      datasets: [
+        {
+          label: poem.title,
+          backgroundColor: 'rgba(194, 116, 161, 0.5)',
+          borderColor: 'rgb(194, 116, 161)',
+          data: poem.graph_values,
+        },
+      ],
+    };
     isEdit = false;
   }
 
@@ -103,20 +117,24 @@
         <textarea name="" bind:value={poem.body} id="" cols="30" rows="10" />
       {/if}
     </div>
-    <div class="poema center clmn content">
-      {#if !isEdit}
-        <div class="content clmn" style="width: 100%; text-align: center;">
-          {#each comments as comment}
-            <div class="comment">
-              <p>{comment.body}</p>
-            </div>
-          {/each}
-        </div>
-      {:else}
-        Vista previa:
-        {poem.body}
-      {/if}
-      {#if !isOwner}
+    {#if comments.length}
+      <div class="poema center clmn content">
+        {#if !isEdit}
+          <div class="content clmn" style="width: 100%; text-align: center;">
+            {#each comments as comment}
+              <div class="comment">
+                <p>{comment.body}</p>
+              </div>
+            {/each}
+          </div>
+        {:else}
+          Vista previa:
+          {poem.body}
+        {/if}
+      </div>
+    {/if}
+    {#if !isOwner}
+      <div class="poema center clmn content">
         <div style="padding-bottom: 12px ;">
           <h4>Comentario</h4>
           <textarea bind:value={comment} name="comment" cols="30" rows="2" />
@@ -124,8 +142,8 @@
             >Agregar</button
           >
         </div>
-      {/if}
-    </div>
+      </div>
+    {/if}
   {/if}
 </div>
 <Chart type="radar" data={dataChart} />
@@ -143,12 +161,6 @@
     width: 60%;
     align-items: baseline;
     white-space: pre;
-  }
-
-  .right {
-    border-left: 2px solid var(--secondary-gray);
-    width: 40%;
-    text-align: center;
   }
 
   .comment {

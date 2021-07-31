@@ -2,13 +2,18 @@
   import { onMount } from 'svelte';
   import { authStore } from '@/supabase/auth';
   import { poemsStore } from '@/supabase/poems';
+  import frequency from '@/utils/word-frecuency';
+  import random_rgba from '@/utils/random_rgba';
   import Chart from '@/components/Chart.svelte';
   $: userStore = $authStore;
   let user = {
     name: '',
     email: '',
   };
+  let datasets = [];
   let dataChart = [];
+  let labels = [];
+  let globalCount = {};
   let poems = [];
   onMount(async () => {
     const result = await poemsStore.getByUserId(userStore.id);
@@ -16,8 +21,34 @@
       console.error(error);
     } else {
       poems = result.data;
-      console.log(poems);
+      labels = poems.map((poem) => labels.concat(poem.graph_labels));
     }
+    labels = labels.flat();
+    globalCount = frequency(labels);
+    console.log(Object.values(globalCount));
+    // labels = Object.keys(data).slice(0, 20);
+    datasets = poems.map((poem) => [
+      ...datasets,
+      {
+        label: poem.title,
+        backgroundColor: random_rgba(),
+        borderColor: random_rgba(),
+        data: poem.graph_values,
+      },
+    ]);
+
+    datasets = datasets.flat();
+    dataChart = {
+      labels: Object.keys(globalCount),
+      datasets: [
+        {
+          label: 'Global Count',
+          backgroundColor: random_rgba(),
+          borderColor: random_rgba(),
+          data: Object.values(globalCount),
+        },
+      ],
+    };
   });
 
   const onUpdate = async () => {
@@ -42,7 +73,7 @@
       >
     </div> -->
   </div>
-  <!-- <Chart type="radar" data={poem.graph_data} /> -->
+  <Chart type="radar" data={dataChart} />
 </main>
 
 <style>

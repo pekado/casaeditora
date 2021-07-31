@@ -9,9 +9,12 @@
   },
   "dependencies": {
     "chart.js": "^3.3.2",
+    "cl-editor": "^2.2.2",
+    "prosemirror-svelte": "^0.2.3",
+    "quill": "^1.3.7",
     "react-image-file-resizer": "^0.4.4",
-    "rollup-plugin-svelte": "^7.1.0",
     "svelte": "^3.29.0",
+    "svelte-quill": "^1.2.0",
     "vercel": "^21.1.0"
   },
   "devDependencies": {

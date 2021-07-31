@@ -1,7 +1,7 @@
 var words = [
   'a',
   'actualmente',
-
+  "",
   'ademas',
   'además',
 
@@ -357,6 +357,7 @@ var words = [
   'siguiente',
   'sin',
   'sino',
+  'si',
   'sobre',
   'sois',
   'solamente',

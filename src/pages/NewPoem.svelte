@@ -7,12 +7,14 @@
   let poem = {
     title: '',
     body: '',
-    graph_data: {},
+    graph_labels: [],
+    graph_values: [],
   };
 
   async function add() {
     const data = frequency(poem.body, {});
-    poem.graph_data = data;
+    poem.graph_labels = Object.keys(data).slice(0, 20);
+    poem.graph_values = Object.values(data).slice(0, 20);
     const result = await poemsStore.create(poem);
     router.goto(`/ignea/poema/${result[0].id}`);
   }

@@ -11,6 +11,7 @@
   import Poem from '@/pages/Poem.svelte';
   import NewPoem from '@/pages/NewPoem.svelte';
   import Article from '@/pages/Article.svelte';
+  import NewArticle from '@/pages/NewArticle.svelte';
   import Footer from '@/components/Footer.svelte';
 
   $: user = $authStore;
@@ -23,7 +24,8 @@
   });
 </script>
 
-<header>Casa Editora{`${user}`}</header>
+<header>Casa Editora</header>
+<a href="/ignea">IGNEA</a>
 <main>
   {#if user}
     <Route path="/ignea">
@@ -37,6 +39,9 @@
     </Route>
     <Route path="/ignea/profile">
       <Profile />
+    </Route>
+    <Route path="/newarticle">
+      <NewArticle />
     </Route>
     <!-- <Route path="/boards/:id" let:meta>
       <Board id={meta.params.id} />

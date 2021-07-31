@@ -11,7 +11,7 @@ const frequency = (text, options) => {
   if ((typeof text === 'string') && (text.length > 0)) {
     /* Returns text with HTML, tabs, new lines, punctuation, and extra spaces removed */
     function stripText(text) {
-      return text.replace(/<[^>]+>|[!.?,;:'"-]/g, '').replace(/\r?\n|\r|\s+|\t/g, ' ').trim()
+      return text.replace(/<[^>]+>|[!.?,;:'"-]/g, ' ').replace(/\r?\n|\r|\s+|\t/g, ' ').trim()
     }
     /* Get words in text */
     text = (options.caseSensitive ? text : text.toLowerCase());
@@ -25,9 +25,18 @@ const frequency = (text, options) => {
         frequencies[part] += 1;
       }
     }
+  } else if(Array.isArray(text)) {
+    for (part in text) { 
+      part = text[part];
+      if (typeof frequencies[part] === 'undefined') {
+        frequencies[part] = 1;
+      } else {
+        frequencies[part] += 1;
+      }
+    }
   }
   const sortable = Object.fromEntries(
-    Object.entries(frequencies).sort(([, a], [, b]) => b - a)
+    Object.entries(frequencies).sort(([, a], [, b]) => b - a).splice(0, 20)
   );
   return sortable;
 }
