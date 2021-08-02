@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { authStore } from '@/supabase/auth';
   import { poemsStore } from '@/supabase/poems';
+  import { isLoading } from '@/stores/loading';
   import frequency from '@/utils/word-frecuency';
   import random_rgba from '@/utils/random_rgba';
   import Chart from '@/components/Chart.svelte';
@@ -25,7 +26,6 @@
     }
     labels = labels.flat();
     globalCount = frequency(labels);
-    console.log(Object.values(globalCount));
     // labels = Object.keys(data).slice(0, 20);
     datasets = poems.map((poem) => [
       ...datasets,
@@ -49,6 +49,7 @@
         },
       ],
     };
+    $isLoading = false;
   });
 
   const onUpdate = async () => {

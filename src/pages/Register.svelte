@@ -1,6 +1,7 @@
 <script>
   import { fly, fade } from 'svelte/transition';
   import { authStore } from '@/supabase/auth';
+  import { isLoading } from '@/stores/loading';
 
   let email,
     password,
@@ -10,6 +11,7 @@
     sent = false;
 
   async function submit() {
+    $isLoading = true;
     if (password === password2) {
       const result = await authStore.signUp(email, password);
       if (result.error) {
@@ -20,6 +22,7 @@
     } else {
       error = 'Las contraseñas no coinciden.';
     }
+    $isLoading = false;
   }
 
   function focus(element) {

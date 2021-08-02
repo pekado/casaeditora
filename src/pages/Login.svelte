@@ -1,15 +1,17 @@
 <script>
   import { fly, fade } from 'svelte/transition';
   import { authStore } from '@/supabase/auth';
+  import { isLoading } from '@/stores/loading';
 
   let email, password, error;
 
   async function submit() {
+    $isLoading = true;
     const result = await authStore.signIn(email, password);
     if (result.error) {
       error = result.error;
     }
-    console.log(result.error);
+    $isLoading = true;
   }
 
   function focus(element) {

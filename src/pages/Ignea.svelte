@@ -2,13 +2,15 @@
   import Header from '@/components/Header.svelte';
   import { onMount } from 'svelte';
   import { poemsStore } from '@/supabase/poems';
+  import { isLoading } from '@/stores/loading';
 
   let poems = [];
   let loading = true;
 
   onMount(async () => {
+    $isLoading = true;
     poems = await poemsStore.all();
-    loading = false;
+    $isLoading = false;
   });
 </script>
 
@@ -41,12 +43,14 @@
     border: 2px solid var(--main-black);
     margin-bottom: 24px;
     padding: 28px 8px;
-    width: 100%;
+    width: 300px;
     max-width: 100%;
   }
   .container {
     display: flex;
     gap: 15px;
+    flex-wrap: wrap;
+    margin: auto auto;
     /* column-count: 5;
     column-width: 300px;
     column-gap: 40px; */

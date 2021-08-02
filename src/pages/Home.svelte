@@ -1,20 +1,35 @@
 <script>
   import { onMount } from 'svelte';
   import { articlesStore } from '@/supabase/articles';
+  import { isLoading } from '@/stores/loading';
 
   let articles;
+  let page = 0;
   onMount(async () => {
-    const result = await articlesStore.all();
-    articles = result;
+    $isLoading = true;
+    await onGet();
+    $isLoading = false;
   });
+
+  const onGet = async () => {
+    const result = await articlesStore.all(page);
+    articles = result.data;
+    page = result.page;
+  };
 </script>
 
 {#if articles}
   <div class="wrapper center sB clmn">
     <div class="front-page">
-      <img src={articles[0].img} alt={articles[0].image} />
-      <h1>{articles[0].title}</h1>
-      <p>{articles[0].subtitle}</p>
+      <a href={`/article/${articles[0].id}`}>
+        <img
+          src={articles[0].image_url}
+          alt={articles[0].image_url}
+          style="height: 400px;"
+        />
+        <h1>{articles[0].title}</h1>
+        <p>{articles[0].subtitle}</p>
+      </a>
       <hr
         style="height: 2px;
     width: 300px;
@@ -24,12 +39,15 @@
     <h2 style="margin-bottom: 64px;">Artículos</h2>
     <div class="grid">
       {#each articles as article}
-        <div>
-          <img src={article.img} alt={article.img} />
-          <p>{article.title}</p>
-        </div>
+        <a href={`/article/${article.id}`}>
+          <div>
+            <img src={article.image_url} alt={article.img} />
+            <p>{article.title}</p>
+          </div>
+        </a>
       {/each}
     </div>
+    <button on:click={onGet}>Next</button>
   </div>
 {/if}
 
@@ -45,7 +63,7 @@
   .grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr 1fr 1fr;
+    /* grid-template-rows: 1fr 1fr 1fr; */
     gap: 64px 28px;
   }
   .grid img {

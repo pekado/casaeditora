@@ -1,13 +1,15 @@
 import { createClient } from '@supabase/supabase-js';
+import getPagination from '@/utils/pagination';
 
 const supabase = createClient(
   import.meta.env.SNOWPACK_PUBLIC_SUPABASE_URL,
   import.meta.env.SNOWPACK_PUBLIC_SUPABASE_KEY
 );
 
-const all = async () => {
-  const { body } = await supabase.from('articles').select('*').range(0,7);
-  return body;
+const all = async (page) => {
+  const { from, to } = getPagination(page, 6);
+  const {data, count } = await supabase.from('articles').select('*', { count: 'exact' }).range(from, to);
+  return {data: data, count: count, page: ++page };
 };
 
 const get = async (id) => {

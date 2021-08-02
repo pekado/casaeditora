@@ -13,6 +13,8 @@
   import Article from '@/pages/Article.svelte';
   import NewArticle from '@/pages/NewArticle.svelte';
   import Footer from '@/components/Footer.svelte';
+  import Spinner from '@/components/Spinner.svelte';
+  import { isLoading } from './stores/loading';
 
   $: user = $authStore;
 
@@ -24,47 +26,52 @@
   });
 </script>
 
-<header>Casa Editora</header>
-<a href="/ignea">IGNEA</a>
-<main>
-  {#if user}
-    <Route path="/ignea">
-      <Ignea />
-    </Route>
-    <Route path="/ignea/poema/:id" let:meta>
-      <Poem id={meta.params.id} user={user.id} />
-    </Route>
-    <Route path="/ignea/poema">
-      <NewPoem user={user.id} />
-    </Route>
-    <Route path="/ignea/profile">
-      <Profile />
-    </Route>
-    <Route path="/newarticle">
-      <NewArticle />
-    </Route>
-    <!-- <Route path="/boards/:id" let:meta>
+<div>
+  {#if $isLoading}
+    <Spinner />
+  {/if}
+  <header>Casa Editora</header>
+  <a href="/ignea">IGNEA</a>
+  <main>
+    {#if user}
+      <Route path="/ignea">
+        <Ignea />
+      </Route>
+      <Route path="/ignea/poema/:id" let:meta>
+        <Poem id={meta.params.id} user={user.id} />
+      </Route>
+      <Route path="/ignea/poema">
+        <NewPoem user={user.id} />
+      </Route>
+      <Route path="/ignea/profile">
+        <Profile />
+      </Route>
+      <Route path="/newarticle">
+        <NewArticle />
+      </Route>
+      <!-- <Route path="/boards/:id" let:meta>
       <Board id={meta.params.id} />
     </Route> -->
-  {:else}
-    <Route path="/login">
-      <Login />
+    {:else}
+      <Route path="/login">
+        <Login />
+      </Route>
+    {/if}
+    <Route path="/register">
+      <Register />
+      <Footer />
     </Route>
-  {/if}
-  <Route path="/register">
-    <Register />
-    <Footer />
-  </Route>
-  <Route path="/">
-    <Home />
-    <Footer />
-  </Route>
-  <Route path="/article/:id" let:meta>
-    <Article id={meta.params.id} />
-    <Footer />
-  </Route>
-  <Route fallback>Aw shucks. That couldn't be found.</Route>
-</main>
+    <Route path="/">
+      <Home />
+      <Footer />
+    </Route>
+    <Route path="/article/:id" let:meta>
+      <Article id={meta.params.id} />
+      <Footer />
+    </Route>
+    <Route fallback>Aw shucks. That couldn't be found.</Route>
+  </main>
+</div>
 
 <style>
   main {

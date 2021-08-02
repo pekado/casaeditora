@@ -3,6 +3,7 @@
   import InPlaceEdit from '@/components/InPlaceEdit.svelte';
   import Header from '@/components/Header.svelte';
   import { poemsStore } from '@/supabase/poems';
+  import { isLoading } from '@/stores/loading';
   import commentsStore from '@/supabase/comments';
   import frequency from '@/utils/word-frecuency';
   import random_rgba from '@/utils/random_rgba';
@@ -27,6 +28,7 @@
   let dataChart = {};
 
   onMount(async () => {
+    $isLoading = true;
     isNew = false;
     const result = await poemsStore.get(id);
     poem = result;
@@ -48,6 +50,7 @@
         },
       ],
     };
+    $isLoading = false;
   });
 
   async function addComment() {
@@ -107,43 +110,39 @@
 </Header>
 
 <div class="content">
-  {#if loading}
-    Loading...
-  {:else}
+  <div class="poema center clmn content">
+    {#if !isEdit}
+      {poem.body}
+    {:else if isOwner}
+      <textarea name="" bind:value={poem.body} id="" cols="30" rows="10" />
+    {/if}
+  </div>
+  {#if comments.length}
     <div class="poema center clmn content">
       {#if !isEdit}
+        <div class="content clmn" style="width: 100%; text-align: center;">
+          {#each comments as comment}
+            <div class="comment">
+              <p>{comment.body}</p>
+            </div>
+          {/each}
+        </div>
+      {:else}
+        Vista previa:
         {poem.body}
-      {:else if isOwner}
-        <textarea name="" bind:value={poem.body} id="" cols="30" rows="10" />
       {/if}
     </div>
-    {#if comments.length}
-      <div class="poema center clmn content">
-        {#if !isEdit}
-          <div class="content clmn" style="width: 100%; text-align: center;">
-            {#each comments as comment}
-              <div class="comment">
-                <p>{comment.body}</p>
-              </div>
-            {/each}
-          </div>
-        {:else}
-          Vista previa:
-          {poem.body}
-        {/if}
+  {/if}
+  {#if !isOwner}
+    <div class="poema center clmn content">
+      <div style="padding-bottom: 12px ;">
+        <h4>Comentario</h4>
+        <textarea bind:value={comment} name="comment" cols="30" rows="2" />
+        <button class="primary" style="float: right;" on:click={addComment}
+          >Agregar</button
+        >
       </div>
-    {/if}
-    {#if !isOwner}
-      <div class="poema center clmn content">
-        <div style="padding-bottom: 12px ;">
-          <h4>Comentario</h4>
-          <textarea bind:value={comment} name="comment" cols="30" rows="2" />
-          <button class="primary" style="float: right;" on:click={addComment}
-            >Agregar</button
-          >
-        </div>
-      </div>
-    {/if}
+    </div>
   {/if}
 </div>
 <Chart type="radar" data={dataChart} />

@@ -3,6 +3,7 @@
   import Header from '@/components/Header.svelte';
   import frequency from '@/utils/word-frecuency';
   import { poemsStore } from '@/supabase/poems';
+  import { isLoading } from '@/stores/loading';
 
   let poem = {
     title: '',
@@ -12,10 +13,12 @@
   };
 
   async function add() {
+    $isLoading = true;
     const data = frequency(poem.body, {});
     poem.graph_labels = Object.keys(data).slice(0, 20);
     poem.graph_values = Object.values(data).slice(0, 20);
     const result = await poemsStore.create(poem);
+    $isLoading = false;
     router.goto(`/ignea/poema/${result[0].id}`);
   }
 </script>
