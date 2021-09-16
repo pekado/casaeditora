@@ -27,13 +27,13 @@
   <title>{poem?.title}</title>
 </svelte:head>
 
-<Header>
+<div>
   <div style="width: 100%" class="center sB">
     <div />
     <input type="text" placeholder="Agrega un títlo" bind:value={poem.title} />
     <button class="secondary" on:click={add}>Guardar</button>
   </div>
-</Header>
+</div>
 <div class="container">
   <div style="width: 60%;">
     <textarea name="" bind:value={poem.body} id="" cols="30" rows="10" />

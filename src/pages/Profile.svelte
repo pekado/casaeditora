@@ -6,6 +6,7 @@
   import frequency from '@/utils/word-frecuency';
   import random_rgba from '@/utils/random_rgba';
   import Chart from '@/components/Chart.svelte';
+  import { router } from 'tinro';
   $: userStore = $authStore;
   let user = {
     name: '',
@@ -14,8 +15,9 @@
   let datasets = [];
   let dataChart = [];
   let labels = [];
-  let globalCount = {};
+  let globalCount = [];
   let poems = [];
+  let terms = [];
   onMount(async () => {
     const result = await poemsStore.getByUserId(userStore.id);
     if (result.error) {
@@ -26,26 +28,32 @@
     }
     labels = labels.flat();
     globalCount = frequency(labels);
-    // labels = Object.keys(data).slice(0, 20);
-    datasets = poems.map((poem) => [
-      ...datasets,
-      {
-        label: poem.title,
-        backgroundColor: random_rgba(),
-        borderColor: random_rgba(),
-        data: poem.graph_values,
-      },
-    ]);
-
-    datasets = datasets.flat();
+    // array de objetos con data de cada poema
+    datasets = poems.map((poem) =>
+      Object.assign.apply(
+        {},
+        poem.graph_labels.map((v, i) => ({ [v]: poem.graph_values[i] }))
+      )
+    );
+    //suma de key iguales
+    terms = poems.map((poem) => [terms + poem.graph_labels]);
+    datasets = datasets.reduce((result, item) => {
+      const keys = Object.keys(item);
+      keys.forEach((key) => {
+        result[key] = result[key] ? result[key] + item[key] : item[key];
+      });
+      return result;
+    });
+    //cortar objecto hasta 20 y borrar los que sean de valor 1
+    //TODO
     dataChart = {
-      labels: Object.keys(globalCount),
+      labels: Object.keys(datasets),
       datasets: [
         {
           label: 'Global Count',
           backgroundColor: random_rgba(),
           borderColor: random_rgba(),
-          data: Object.values(globalCount),
+          data: Object.values(datasets),
         },
       ],
     };
@@ -57,24 +65,27 @@
   };
 </script>
 
-<h1 on:click={onUpdate}>profile</h1>
+<h1 on:click={onUpdate}>Tus poemas y sus estadisticas.</h1>
 <main class="content">
-  <div class="container">
-    {#each poems as poem}
-      <a href="/ignea/poema/{poem.id}">
-        <div class="poem">
-          {poem.title}
-        </div>
-      </a>
-    {/each}
-
-    <!-- <div class="add">
-      <a href="/ignea/poema"
-        >{poems.length == 0 ? 'Add a poem' : 'Add another poem'}</a
+  {#if poems.length}
+    <div class="container">
+      {#each poems as poem}
+        <a href="/ignea/poema/{poem.id}">
+          <div class="poem">
+            {poem.title}
+          </div>
+        </a>
+      {/each}
+    </div>
+    <Chart type="radar" data={dataChart} />
+  {:else}
+    <div class="content">
+      <h2 style="margin-bottom: 30px;">No tienes poemas, agrega uno!</h2>
+      <button class="primary" on:click={() => router.goto('/ignea/newpoem')}
+        >Nuevo Poema</button
       >
-    </div> -->
-  </div>
-  <Chart type="radar" data={dataChart} />
+    </div>
+  {/if}
 </main>
 
 <style>

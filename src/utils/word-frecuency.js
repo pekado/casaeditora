@@ -26,6 +26,7 @@ const frequency = (text, options) => {
       }
     }
   } else if(Array.isArray(text)) {
+    console.log(text)
     for (part in text) { 
       part = text[part];
       if (typeof frequencies[part] === 'undefined') {

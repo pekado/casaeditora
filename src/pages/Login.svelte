@@ -2,6 +2,7 @@
   import { fly, fade } from 'svelte/transition';
   import { authStore } from '@/supabase/auth';
   import { isLoading } from '@/stores/loading';
+  import { router } from 'tinro';
 
   let email, password, error;
 
@@ -11,7 +12,7 @@
     if (result.error) {
       error = result.error;
     }
-    $isLoading = true;
+    router.goto('/');
   }
 
   function focus(element) {

@@ -96,7 +96,7 @@
   <title>{poem?.title}</title>
 </svelte:head>
 
-<Header>
+<div class="center sB content" style="padding:12px 35px ">
   {#if isOwner}
     <InPlaceEdit bind:value={poem.title} on:submit={updateTitle} />
     {#if isEdit}
@@ -105,9 +105,9 @@
       <button class="secondary" on:click={onEdit}>Editar</button>
     {/if}
   {:else}
-    <h1>{poem.title}</h1>
+    <h1 style="font-size: 48px">{poem.title}</h1>
   {/if}
-</Header>
+</div>
 
 <div class="content">
   <div class="poema center clmn content">

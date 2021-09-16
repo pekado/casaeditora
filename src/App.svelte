@@ -15,6 +15,7 @@
   import Footer from '@/components/Footer.svelte';
   import Spinner from '@/components/Spinner.svelte';
   import { isLoading } from './stores/loading';
+  import Header from '@/components/Header.svelte';
 
   $: user = $authStore;
 
@@ -30,8 +31,8 @@
   {#if $isLoading}
     <Spinner />
   {/if}
-  <header>Casa Editora</header>
-  <a href="/ignea">IGNEA</a>
+  <a href="/"><header style="font-size: xx-large;">Casa Editora</header></a>
+  <Header>poems</Header>
   <main>
     {#if user}
       <Route path="/ignea">
@@ -40,7 +41,7 @@
       <Route path="/ignea/poema/:id" let:meta>
         <Poem id={meta.params.id} user={user.id} />
       </Route>
-      <Route path="/ignea/poema">
+      <Route path="/ignea/newpoem">
         <NewPoem user={user.id} />
       </Route>
       <Route path="/ignea/profile">

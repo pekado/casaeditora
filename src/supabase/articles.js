@@ -7,7 +7,7 @@ const supabase = createClient(
 );
 
 const all = async (page) => {
-  const { from, to } = getPagination(page, 6);
+  const { from, to } = getPagination(0, 6);
   const {data, count } = await supabase.from('articles').select('*', { count: 'exact' }).range(from, to);
   return {data: data, count: count, page: ++page };
 };

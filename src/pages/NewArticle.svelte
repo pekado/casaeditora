@@ -8,7 +8,7 @@
   let quill;
   let input_img;
 
-  export let toolbarOptions = [
+  let toolbarOptions = [
     [{ header: 1 }, { header: 2 }, 'blockquote', 'link', 'image', 'video'],
     ['bold', 'italic', 'underline', 'strike'],
     [{ list: 'ordered' }, { list: 'ordered' }],
@@ -103,7 +103,10 @@
     }
   };
 
-  onDestroy(() => (quill = ''));
+  onDestroy(() => {
+    (quill = ''), (toolbarOptions = null);
+    console.log(too);
+  });
 </script>
 
 <svelte:head>

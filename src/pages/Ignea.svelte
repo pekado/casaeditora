@@ -1,11 +1,9 @@
 <script>
-  import Header from '@/components/Header.svelte';
   import { onMount } from 'svelte';
   import { poemsStore } from '@/supabase/poems';
   import { isLoading } from '@/stores/loading';
 
   let poems = [];
-  let loading = true;
 
   onMount(async () => {
     $isLoading = true;
@@ -18,7 +16,6 @@
   <title>poems</title>
 </svelte:head>
 
-<Header>poems</Header>
 <main class="content">
   <div class="container">
     {#each poems as poem}
@@ -26,14 +23,11 @@
         <div class="poem">
           {poem.title}
         </div>
+        <ul>
+          <li />
+        </ul>
       </a>
     {/each}
-
-    <!-- <div class="add">
-      <a href="/ignea/poema"
-        >{poems.length == 0 ? 'Add a poem' : 'Add another poem'}</a
-      >
-    </div> -->
   </div>
 </main>
 
